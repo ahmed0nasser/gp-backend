@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", // Target ECMAScript version
+    "module": "Preserve", // Ignore module structure
+    "strict": true, // Enable strict type-checking
+    "esModuleInterop": true, // Allow compatibility with ES modules
+    "resolveJsonModule": true, // Allow importing JSON files
+    "skipLibCheck": true, // Skip checking of declaration files
+    "forceConsistentCasingInFileNames": true, // Enforce consistent file naming
+    "moduleDetection": "force", // Treat files as modules even if it doesn't use import/export
+    "allowJs": true, // Allow JS files to be imported from TS and vice versa
+    "isolatedModules": true // Disallow features that require cross-file awareness
+  }
+}
