@@ -1,7 +1,7 @@
 import Joi from "joi";
 
 const schema = Joi.object({
-  refreshToken: Joi.string().valid("caregiver", "ward"),
+  refreshToken: Joi.string().required(),
 });
 
 export default schema;
