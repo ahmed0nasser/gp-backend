@@ -3,23 +3,26 @@ import relationSchema, { IRelation } from "./relation";
 import notificationSchema, { INotification } from "./notification";
 import vitalStatSchema, { IVitalStat } from "./vitalStat";
 
-type UserRole = "ward" | "caregiver";
+export type UserRole = "ward" | "caregiver";
 
-interface IUser {
+export interface IUser {
+  id: number;
   _id: number;
   firstName: string;
   lastName: string;
-  title?: string;
-  organization?: string;
-  phoneNumber?: number;
-  impairment?: string;
+  fullName: string;
+  title: string;
+  organization: string;
+  phoneNumber: number;
+  impairment: string;
+  img: string;
   email: string;
-  password_hash: string;
+  passwordHash: string;
   role: UserRole;
   relations: IRelation[];
   notifications: INotification[];
   vitalStats: IVitalStat[];
-  refreshToken: String;
+  refreshToken?: String;
 }
 
 const userSchema = new Schema<IUser>({
@@ -27,15 +30,20 @@ const userSchema = new Schema<IUser>({
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
   email: { type: String, required: true },
-  password_hash: { type: String, required: true },
+  passwordHash: { type: String, required: true },
   role: { type: String, required: true },
   refreshToken: { type: String, default: "" },
-  title: String,
-  organization: String,
-  impairment: String,
+  img: { type: String, default: "" },
+  title: { type: String, default: "" },
+  organization: { type: String, default: "" },
+  impairment: { type: String, default: "" },
   relations: [relationSchema],
   notifications: [notificationSchema],
   vitalStats: [vitalStatSchema],
+});
+
+userSchema.virtual("fullName").get(function () {
+  return this.firstName + " " + this.lastName;
 });
 
 export default userSchema;

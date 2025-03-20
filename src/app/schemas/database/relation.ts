@@ -1,12 +1,11 @@
 import { Schema } from "mongoose";
 
-type RelationStatus = "pending" | "accepted" | "rejected";
+export type RelationType = "relation" | "incoming" | "outgoing";
 
 export interface IRelation {
   _id: number;
-  senderId: number;
-  receiverId: number;
-  status: RelationStatus;
+  relatedUserId: number;
+  type: RelationType;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -14,8 +13,8 @@ export interface IRelation {
 const relationSchema = new Schema<IRelation>(
   {
     _id: { type: Number, required: true },
-    senderId: { type: Number, required: true },
-    receiverId: { type: Number, required: true },
+    relatedUserId: { type: Number, required: true },
+    type: { type: String, required: true },
   },
   { timestamps: true }
 );
