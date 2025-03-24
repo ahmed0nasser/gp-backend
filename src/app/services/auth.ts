@@ -3,6 +3,9 @@ import jwt from "jsonwebtoken";
 import { getNextSequence } from "../models/counter";
 import { UserRole } from "../schemas/database/user";
 import User from "../models/user";
+import APIError from "../errors/APIError";
+import userClaimSchema from "../schemas/validation/userClaim";
+import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 
 interface NewUser {
   firstName: string;
@@ -41,25 +44,23 @@ export const registerNewUser = async ({
 }: NewUser): Promise<number> => {
   const isSameEmailUser = await User.exists({ email });
   if (isSameEmailUser) {
-    // TODO: Error for conflict, already existing email
-    throw new Error();
+    throw new APIError(409, { message: "Email is already used" });
   }
-  try {
-    const saltRounds = 10;
-    const passwordHash = await bcrypt.hash(password, saltRounds);
-    const userId = await getNextSequence("user");
-    await User.create({
-      _id: userId,
-      firstName,
-      lastName,
-      email,
-      passwordHash,
-      role,
-    });
-    return userId;
-  } catch (error) {
-    throw error;
-  }
+
+  const saltRounds = 10;
+  const passwordHash = await bcrypt.hash(password, saltRounds);
+
+  const userId = await getNextSequence("user");
+  await User.create({
+    _id: userId,
+    firstName,
+    lastName,
+    email,
+    passwordHash,
+    role,
+  });
+
+  return userId;
 };
 
 export const loginUser = async ({
@@ -68,37 +69,36 @@ export const loginUser = async ({
 }: UserLogin): Promise<UserTokens> => {
   const sameEmailUser = await User.findOne({ email }, "_id passwordHash role");
   if (!sameEmailUser) {
-    // TODO: Error cannot authenticate unexisting user
-    throw new Error();
+    throw new APIError(404, { message: "No user with matching email" });
   }
-  try {
-    const result = await bcrypt.compare(password, sameEmailUser.passwordHash);
-    if (!result) {
-      // TODO: Wrong password
-      throw new Error();
-    }
-    // Token payload
-    const userClaim: UserClaim = {
-      id: sameEmailUser.id,
-      role: sameEmailUser.role,
-    };
-    // Generate tokens
-    const accessToken = jwt.sign(
-      userClaim,
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn }
-    );
-    const refreshToken = jwt.sign(
-      userClaim,
-      process.env.REFRESH_TOKEN_SECRET as string
-    );
-    // Store refreshToken in DB
-    sameEmailUser.refreshToken = refreshToken;
-    await sameEmailUser.save();
-    return { accessToken, refreshToken, expiresIn };
-  } catch (error) {
-    throw error;
+
+  const result = await bcrypt.compare(password, sameEmailUser.passwordHash);
+  if (!result) {
+    throw new APIError(401, { message: "Wrong password" });
   }
+
+  // Token payload
+  const userClaim: UserClaim = {
+    id: sameEmailUser.id,
+    role: sameEmailUser.role,
+  };
+
+  // Generate tokens
+  const accessToken = jwt.sign(
+    userClaim,
+    process.env.ACCESS_TOKEN_SECRET as string,
+    { expiresIn }
+  );
+  const refreshToken = jwt.sign(
+    userClaim,
+    process.env.REFRESH_TOKEN_SECRET as string
+  );
+
+  // Store refreshToken in DB
+  sameEmailUser.refreshToken = refreshToken;
+  await sameEmailUser.save();
+
+  return { accessToken, refreshToken, expiresIn };
 };
 
 export const refreshUserAccessToken = async (
@@ -106,46 +106,61 @@ export const refreshUserAccessToken = async (
 ): Promise<string> => {
   const isSameUserRefreshToken = await User.exists({ refreshToken });
   if (!isSameUserRefreshToken) {
-    // User non-exist or invalid refresh token
-    throw new Error();
+    throw new APIError(404, { message: "Invalid refresh token" });
   }
 
+  let userClaim;
   try {
-    const userClaim = jwt.verify(
+    userClaim = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
-    ) as UserClaim;
-    const accessToken = jwt.sign(
-      userClaim,
-      process.env.ACCESS_TOKEN_SECRET as string,
-      { expiresIn }
-    );
-    return accessToken;
-  } catch (error) {
-    // Invalid refresh token, is not signed by the server
-    throw error;
+    );      
+  } catch (_) {
+    throw new APIError(404, { message: "Invalid refresh token" });
   }
+
+  await validateUserClaim(userClaim);
+
+  const accessToken = jwt.sign(
+    userClaim,
+    process.env.ACCESS_TOKEN_SECRET as string,
+    { expiresIn }
+  );
+
+  return accessToken;
 };
 
 export const logoutUser = async (userId: number) => {
   const user = await User.findById(userId, "_id");
   if (!user) {
-    // User non-exist, invalid userId
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
+
+  // Reset refreshToken
   user.refreshToken = "";
+
   await user.save();
 };
 
-export const authUser = async (
-  token: string
-): Promise<UserClaim | undefined> => {
+export const authUser = async (token: string): Promise<UserClaim> => {
+  let userClaim;
   try {
-    return jwt.verify(
+    userClaim = jwt.verify(
       token,
       process.env.ACCESS_TOKEN_SECRET as string
-    ) as UserClaim;
-  } catch (error) {
-    throw error;
+    );     
+  } catch (_) {
+    throw new APIError(404, { message: "Invalid access token" });
   }
+
+  await validateUserClaim(userClaim);
+
+  return userClaim as UserClaim;
+};
+
+// ====================================
+// HELPERS
+// ====================================
+const validateUserClaim = async (userClaim: unknown) => {
+  await userClaimSchema.validateAsync(userClaim);
 };
