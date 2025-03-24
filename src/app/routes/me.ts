@@ -4,33 +4,33 @@ import { validateRequest } from "../middleware/validateRequest";
 import { notificationsQuerySchema } from "../schemas/validation/notifications";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
 import {
-  userInfoController,
-  userNotificationsController,
-  userProfileController,
-  userRelationsController,
-  userVitalStatsController,
+  meInfoController,
+  meNotificationsController,
+  meProfileController,
+  meRelationsController,
+  meVitalStatsController,
 } from "../controllers/me";
 
 const router = Router();
 
-router.get("/", authUserHandler, userInfoController);
+router.get("/", authUserHandler, meInfoController);
 
-router.get("/relations", authUserHandler, userRelationsController);
+router.get("/relations", authUserHandler, meRelationsController);
 
-router.get("/profile", authUserHandler, userProfileController);
+router.get("/profile", authUserHandler, meProfileController);
 
 router.get(
   "/notifications",
   authUserHandler,
   validateRequest("query", notificationsQuerySchema),
-  userNotificationsController
+  meNotificationsController
 );
 
 router.get(
   "/vital-stats",
   authUserHandler,
   validateRequest("query", vitalStatsQuerySchema),
-  userVitalStatsController
+  meVitalStatsController
 );
 
 export default router;
