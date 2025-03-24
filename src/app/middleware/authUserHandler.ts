@@ -1,5 +1,5 @@
 import { Request, RequestHandler } from "express";
-import { authUser, UserClaim } from "../services/auth";
+import { authUser } from "../services/auth";
 import APIError from "../errors/APIError";
 
 const authUserHandler: RequestHandler = async (req: Request, res, next) => {
@@ -13,8 +13,7 @@ const authUserHandler: RequestHandler = async (req: Request, res, next) => {
       });
     }
 
-    const userClaim = (await authUser(token as string)) as UserClaim;
-    req.userClaim = userClaim;
+    req.userClaim = await authUser(token as string);;
 
     next();
   } catch (error) {

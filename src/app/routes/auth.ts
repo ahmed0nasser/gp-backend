@@ -7,7 +7,7 @@ import registerController from "../controllers/auth/register";
 import loginController from "../controllers/auth/login";
 import refreshController from "../controllers/auth/refresh";
 import logoutController from "../controllers/auth/logout";
-import authUserHandler from "../middleware/authUser";
+import authUserHandler from "../middleware/authUserHandler";
 
 const router = Router();
 

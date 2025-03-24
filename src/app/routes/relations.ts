@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUser";
+import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { idParamsSchema } from "../schemas/validation/common";
 import { relationStatusSchema } from "../schemas/validation/relations";
@@ -13,14 +13,12 @@ const router = Router();
 
 router.get(
   "/:id",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   relationFetchController
 );
 
 router.patch(
   "/:id",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   validateRequest("body", relationStatusSchema),
   relationStatusController
@@ -28,7 +26,6 @@ router.patch(
 
 router.delete(
   "/:id",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   relationDeleteController
 );

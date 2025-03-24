@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUser";
+import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
 import { notificationsQuerySchema } from "../schemas/validation/notifications";
@@ -14,7 +14,6 @@ const router = Router();
 
 router.post(
   "/:id/relations",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
   usersPostRelationController
@@ -22,7 +21,6 @@ router.post(
 
 router.get(
   "/:id/notifications",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
   usersGetNotificationsController
@@ -30,7 +28,6 @@ router.get(
 
 router.get(
   "/:id/vital-stats",
-  authUserHandler,
   validateRequest("params", idParamsSchema),
   validateRequest("query", vitalStatsQuerySchema),
   usersGetVitalStatsController

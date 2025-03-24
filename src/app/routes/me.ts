@@ -1,5 +1,5 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUser";
+import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { notificationsQuerySchema } from "../schemas/validation/notifications";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
@@ -13,22 +13,20 @@ import {
 
 const router = Router();
 
-router.get("/", authUserHandler, meInfoController);
+router.get("/", meInfoController);
 
-router.get("/relations", authUserHandler, meRelationsController);
+router.get("/relations", meRelationsController);
 
-router.get("/profile", authUserHandler, meProfileController);
+router.get("/profile", meProfileController);
 
 router.get(
   "/notifications",
-  authUserHandler,
   validateRequest("query", notificationsQuerySchema),
   meNotificationsController
 );
 
 router.get(
   "/vital-stats",
-  authUserHandler,
   validateRequest("query", vitalStatsQuerySchema),
   meVitalStatsController
 );
