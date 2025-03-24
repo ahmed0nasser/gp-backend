@@ -9,6 +9,6 @@ const schema = Joi.object({
     "any.only": "repeatPassword must match password",
   }),
   role: Joi.string().valid("caregiver", "ward").required(),
-});
+}).unknown(false);
 
 export default schema;
