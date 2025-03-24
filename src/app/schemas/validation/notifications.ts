@@ -9,5 +9,6 @@ export const notificationSchema = Joi.object({
 });
 
 export const notificationsQuerySchema = Joi.object({
+  page: Joi.number().required().min(1),
   size: Joi.number().required().min(1).max(50),
 });
