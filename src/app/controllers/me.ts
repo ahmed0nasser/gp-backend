@@ -4,7 +4,7 @@ import { getRelationsByUserId } from "../services/relations";
 import { getNotificationsByUserId } from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 
-export const userInfoController: RequestHandler = async (
+export const meInfoController: RequestHandler = async (
   req: Request,
   res,
   next
@@ -22,7 +22,7 @@ export const userInfoController: RequestHandler = async (
   } catch (error) {}
 };
 
-export const userRelationsController: RequestHandler = async (
+export const meRelationsController: RequestHandler = async (
   req: Request,
   res,
   next
@@ -40,7 +40,7 @@ export const userRelationsController: RequestHandler = async (
   } catch (error) {}
 };
 
-export const userProfileController: RequestHandler = async (
+export const meProfileController: RequestHandler = async (
   req: Request,
   res,
   next
@@ -58,7 +58,7 @@ export const userProfileController: RequestHandler = async (
   } catch (error) {}
 };
 
-export const userNotificationsController: RequestHandler = async (
+export const meNotificationsController: RequestHandler = async (
   req: Request,
   res,
   next
@@ -71,20 +71,19 @@ export const userNotificationsController: RequestHandler = async (
 
     const notifications = await getNotificationsByUserId(
       req.userClaim.id,
+      Number(req.query.page),
       Number(req.query.size)
     );
 
-    res
-      .status(200)
-      .json({
-        status: "success",
-        data: { size: Number(req.query.size), notifications },
-      });
+    res.status(200).json({
+      status: "success",
+      data: { size: notifications.length, notifications },
+    });
     return;
   } catch (error) {}
 };
 
-export const userVitalStatsController: RequestHandler = async (
+export const meVitalStatsController: RequestHandler = async (
   req: Request,
   res,
   next
@@ -95,19 +94,21 @@ export const userVitalStatsController: RequestHandler = async (
       throw new Error();
     }
 
-    const vitalStats = await getVitalStatsByUserId(req.userClaim.id, req.query.duration as Duration, Number(req.query.limit));
+    const vitalStats = await getVitalStatsByUserId(
+      req.userClaim.id,
+      req.query.duration as Duration,
+      req.query.limit ? Number(req.query.limit) : undefined
+    );
 
-    res
-      .status(200)
-      .json({
-        status: "success",
-        data: {
-          userId: req.userClaim.id,
-          size: vitalStats.length,
-          duration: req.query.duration,
-          vitalStats,
-        },
-      });
+    res.status(200).json({
+      status: "success",
+      data: {
+        userId: req.userClaim.id,
+        size: vitalStats.length,
+        duration: req.query.duration,
+        vitalStats,
+      },
+    });
     return;
   } catch (error) {}
 };

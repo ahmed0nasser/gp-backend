@@ -32,7 +32,7 @@ export const usersGetVitalStatsController: RequestHandler = async (
     const vitalStats = await getVitalStatsByUserId(
       Number(req.params.id),
       req.query.duration as Duration,
-      Number(req.query.limit)
+      req.query.limit ? Number(req.query.limit) : undefined
     );
 
     res.status(200).json({
