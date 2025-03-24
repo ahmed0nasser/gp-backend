@@ -7,6 +7,7 @@ import registerController from "../controllers/auth/register";
 import loginController from "../controllers/auth/login";
 import refreshController from "../controllers/auth/refresh";
 import logoutController from "../controllers/auth/logout";
+import authUserHandler from "../middleware/authUser";
 
 const router = Router();
 
@@ -24,6 +25,6 @@ router.post(
   refreshController
 );
 
-router.post("/logout", logoutController);
+router.post("/logout", authUserHandler, logoutController);
 
 export default router;
