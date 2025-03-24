@@ -1,3 +1,5 @@
+import APIError from "../errors/APIError";
+import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import User from "../models/user";
 import { INotification } from "../schemas/database/notification";
 
@@ -8,13 +10,19 @@ export const getNotificationsByUserId = async (
 ): Promise<INotification[]> => {
   const user = await User.findById(userId, "notifications");
   if (!user) {
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
-  const pagesNum = getNotificationsPagesNum(user.notifications.length);
-  if (page > pagesNum) {
-    throw new Error();
+
+  const maxPageNum = getNotificationsPagesNum(user.notifications.length);
+  if (page > maxPageNum) {
+    throw new APIError(400, {
+      message: "Unavailable page number",
+      details:
+        "the supplied page number in the query is greater than the maximum number of pages: " +
+        maxPageNum,
+    });
   }
-  
+
   return user.notifications.slice((page - 1) * 50, size);
 };
 
@@ -23,4 +31,4 @@ export const getNotificationsByUserId = async (
 // ====================================
 const getNotificationsPagesNum = (len: number) => {
   return Math.ceil(len / 50);
-}
+};

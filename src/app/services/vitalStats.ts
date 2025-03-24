@@ -1,28 +1,38 @@
+import APIError from "../errors/APIError";
+import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import User from "../models/user";
 
 export type Duration = "30mins" | "hour" | "day" | "week";
 
-export const getVitalStatsByUserId = async (userId: number, duration: Duration, limit?: number ) => {
+export const getVitalStatsByUserId = async (
+  userId: number,
+  duration: Duration,
+  limit?: number
+) => {
   const user = await User.findById(userId, "role vitalStats");
   if (!user) {
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
   if (user.role !== "ward") {
-    // no vital stats for caregivers
-    throw new Error();
+    throw new APIError(403, { message: "No vital stats for non-ward users" });
   }
 
   const durationTimestamp = durationToDate(duration);
-  
-  const userVitalStats = user.vitalStats.filter(vitalStat => vitalStat.timestamp.valueOf() - durationTimestamp >= 0);
 
-  return limit? userVitalStats.slice(0, limit) : userVitalStats;
-}
+  const userVitalStats = user.vitalStats.filter(
+    (vitalStat) => vitalStat.timestamp.valueOf() >= durationTimestamp
+  );
 
+  return limit ? userVitalStats.slice(0, limit) : userVitalStats;
+};
+
+// ====================================
+// HELPERS
+// ====================================
 const durationToDate = (duration: Duration) => {
   let date;
 
-  switch(duration) {
+  switch (duration) {
     case "30mins":
       date = 1800000;
       break;
@@ -38,4 +48,4 @@ const durationToDate = (duration: Duration) => {
   }
 
   return Date.now() - date;
-}
+};

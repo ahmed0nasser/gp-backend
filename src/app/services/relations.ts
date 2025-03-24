@@ -1,3 +1,6 @@
+import APIError from "../errors/APIError";
+import RelationDoesNotExistError from "../errors/RelationDoesNotExistError";
+import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import { getNextSequence } from "../models/counter";
 import User from "../models/user";
 import { IRelation, RelationType } from "../schemas/database/relation";
@@ -17,8 +20,9 @@ export const getRelationsByUserId = async (
 ): Promise<UserRelation[]> => {
   const user = await User.findById(userId, "relations");
   if (!user) {
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
+
   const userRelations = await Promise.all(
     user.relations.map(async (relation) => {
       const userRelation: UserRelation = {
@@ -35,19 +39,24 @@ export const getRelationsByUserId = async (
   return userRelations;
 };
 
-export const getRelation = async (userId: number, relationId: number) : Promise<IRelation> => {
+export const getRelation = async (
+  userId: number,
+  relationId: number
+): Promise<IRelation> => {
   const user = await User.findById(userId, "relations");
   if (!user) {
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
 
-  const relation = user.relations.find(relation => relation._id === relationId);
+  const relation = user.relations.find(
+    (relation) => relation._id === relationId
+  );
   if (!relation) {
-    throw new Error();
+    throw new RelationDoesNotExistError(userId, relationId);
   }
 
   return relation;
-}
+};
 
 export const sendRelationRequest = async (
   senderId: number,
@@ -55,18 +64,21 @@ export const sendRelationRequest = async (
 ): Promise<number> => {
   const sender = await User.findById(senderId, "_id relations");
   if (!sender) {
-    throw new Error();
+    throw new UserDoesNotExistError(senderId);
   }
+
   if (
     sender.relations.some((relation) => relation.relatedUserId === receiverId)
   ) {
-    throw new Error();
-  }
-  const receiver = await User.findById(receiverId, "_id relations");
-  if (!receiver) {
-    throw new Error();
+    throw new APIError(403, { message: "Relation already exists" });
   }
 
+  const receiver = await User.findById(receiverId, "_id relations");
+  if (!receiver) {
+    throw new UserDoesNotExistError(receiverId);
+  }
+
+  // Create new relation
   const newRelationdId = await getNextSequence("relation");
   sender.relations.push({
     _id: newRelationdId,
@@ -98,21 +110,30 @@ export const changeRelationStatus = async (
   switch (status) {
     case "accepted":
       if (initiatorRelation.type !== "incoming") {
-        throw new Error();
+        throw new APIError(403, {
+          message: "Relation cannot be accepted",
+          details: "relation must have type=incoming to be acceptable",
+        });
       }
       initiatorRelation.type = "relation";
       affectedRelation.type = "relation";
       break;
     case "rejected":
       if (initiatorRelation.type !== "incoming") {
-        throw new Error();
+        throw new APIError(403, {
+          message: "Relation cannot be rejected",
+          details: "relation must have type=incoming to be rejectable",
+        });
       }
       deleteUserRelation(initiator, initiatorRelation);
       deleteUserRelation(affected, affectedRelation);
       break;
     case "canceled":
       if (initiatorRelation.type !== "outgoing") {
-        throw new Error();
+        throw new APIError(403, {
+          message: "Relation cannot be canceled",
+          details: "relation must have type=outgoing to be cancelable",
+        });
       }
       deleteUserRelation(initiator, initiatorRelation);
       deleteUserRelation(affected, affectedRelation);
@@ -142,14 +163,14 @@ export const deleteRelation = async (userId: number, relationId: number) => {
 const getUserRelationPair = async (userId: number, relationId: number) => {
   const user = await User.findById(userId, "relations");
   if (!user) {
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
 
   const relation = user.relations.find(
     (relation) => relation._id === relationId
   );
   if (!relation) {
-    throw new Error();
+    throw new RelationDoesNotExistError(userId, relationId);
   }
 
   return { user, relation };

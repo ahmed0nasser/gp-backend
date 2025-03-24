@@ -1,3 +1,4 @@
+import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import User from "../models/user";
 import { UserRole } from "../schemas/database/user";
 
@@ -28,8 +29,7 @@ export const getUserInfoById = async (userId: number): Promise<UserInfo> => {
     "_id firstName lastName role img title"
   );
   if (!user) {
-    // Invalid userId
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
 
   const userInfo: UserInfo = {
@@ -49,8 +49,7 @@ export const getUserProfileById = async (
 ): Promise<UserProfile> => {
   const user = await User.findById(userId);
   if (!user) {
-    // Invalid userId
-    throw new Error();
+    throw new UserDoesNotExistError(userId);
   }
 
   const userProfile: UserProfile = {
