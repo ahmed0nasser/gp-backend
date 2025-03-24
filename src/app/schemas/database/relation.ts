@@ -6,8 +6,6 @@ export interface IRelation {
   _id: number;
   relatedUserId: number;
   type: RelationType;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const relationSchema = new Schema<IRelation>(
