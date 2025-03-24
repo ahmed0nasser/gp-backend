@@ -2,7 +2,7 @@ import User from "../models/user";
 
 export type Duration = "30mins" | "hour" | "day" | "week";
 
-export const getVitalStatsByUserId = async (userId: number, duration: Duration, limit: number ) => {
+export const getVitalStatsByUserId = async (userId: number, duration: Duration, limit?: number ) => {
   const user = await User.findById(userId, "role vitalStats");
   if (!user) {
     throw new Error();
@@ -16,7 +16,7 @@ export const getVitalStatsByUserId = async (userId: number, duration: Duration, 
   
   const userVitalStats = user.vitalStats.filter(vitalStat => vitalStat.timestamp.valueOf() - durationTimestamp >= 0);
 
-  return userVitalStats.slice(0, limit);
+  return limit? userVitalStats.slice(0, limit) : userVitalStats;
 }
 
 const durationToDate = (duration: Duration) => {
