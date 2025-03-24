@@ -35,6 +35,20 @@ export const getRelationsByUserId = async (
   return userRelations;
 };
 
+export const getRelation = async (userId: number, relationId: number) : Promise<IRelation> => {
+  const user = await User.findById(userId, "relations");
+  if (!user) {
+    throw new Error();
+  }
+
+  const relation = user.relations.find(relation => relation._id === relationId);
+  if (!relation) {
+    throw new Error();
+  }
+
+  return relation;
+}
+
 export const sendRelationRequest = async (
   senderId: number,
   receiverId: number
