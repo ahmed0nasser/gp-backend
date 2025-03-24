@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
-import { Schema } from "joi";
+import { Schema, ValidationError } from "joi";
+import APIError from "../errors/APIError";
 
 type validationType = "body" | "query" | "params";
 
@@ -7,34 +8,38 @@ export const validateRequest = (
   type: validationType,
   schema: Schema
 ): RequestHandler => {
-  return (req, res, next) => {
+  return async (req, res, next) => {
     const errorMessage = {
       body: "Invalid Request body",
       query: "Invalid URL query parameters",
       params: "Invalid Request URL",
     };
-    let result;
-    switch (type) {
-      case "body":
-        result = schema.validate(req.body);
-        break;
-      case "query":
-        result = schema.validate(req.query);
-        break;
-      case "params":
-        result = schema.validate(req.params);
-        break;
+
+    try {
+      switch (type) {
+        case "body":
+          await schema.validateAsync(req.body);
+          break;
+        case "query":
+          await schema.validateAsync(req.query);
+          break;
+        case "params":
+          await schema.validateAsync(req.params);
+          break;
+      }
+
+      next();
+    } catch (error) {
+      if (error instanceof ValidationError) {
+        next(
+          new APIError(400, {
+            message: errorMessage[type],
+            details: error.details[0].message,
+          })
+        );
+      } else {
+        next(error);
+      }
     }
-    if (result.error) {
-      res.status(400).json({
-        status: "error",
-        error: {
-          message: errorMessage[type],
-          details: result.error.details[0].message,
-        },
-      });
-      return;
-    }
-    next();
   };
 };
