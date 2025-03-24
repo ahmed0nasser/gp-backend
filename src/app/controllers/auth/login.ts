@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import { loginUser } from "../../services/auth";
 
-const loginController: RequestHandler = async (req, res) => {
+const loginController: RequestHandler = async (req, res, next) => {
   try {
     const tokens = await loginUser(req.body);
     res
@@ -9,7 +9,7 @@ const loginController: RequestHandler = async (req, res) => {
       .json({ status: "success", message: "Successful login", data: tokens });
       return;
   } catch (error) {
-
+    next(error);
   }
 };
 

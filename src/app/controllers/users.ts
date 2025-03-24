@@ -20,7 +20,9 @@ export const usersGetNotificationsController: RequestHandler = async (
       data: { size: notifications.length, notifications },
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const usersGetVitalStatsController: RequestHandler = async (
@@ -45,7 +47,9 @@ export const usersGetVitalStatsController: RequestHandler = async (
       },
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const usersPostRelationController: RequestHandler = async (
@@ -69,5 +73,7 @@ export const usersPostRelationController: RequestHandler = async (
       data: { relationId },
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };

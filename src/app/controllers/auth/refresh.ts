@@ -12,7 +12,9 @@ const refreshController: RequestHandler = async (req, res, next) => {
         data: { accessToken: newAccessToken },
       });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default refreshController;

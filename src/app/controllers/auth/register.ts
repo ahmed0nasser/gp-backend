@@ -13,7 +13,7 @@ const registerController: RequestHandler = async (req, res, next) => {
     });
     return;
   } catch (error) {
-    // handle errror
+    next(error);
   }
 };
 

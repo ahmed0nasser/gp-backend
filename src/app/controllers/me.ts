@@ -19,7 +19,9 @@ export const meInfoController: RequestHandler = async (
 
     res.status(200).json({ status: "success", data: userInfo });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const meRelationsController: RequestHandler = async (
@@ -37,7 +39,9 @@ export const meRelationsController: RequestHandler = async (
 
     res.status(200).json({ status: "success", data: relations });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const meProfileController: RequestHandler = async (
@@ -55,7 +59,9 @@ export const meProfileController: RequestHandler = async (
 
     res.status(200).json({ status: "success", data: userProfile });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const meNotificationsController: RequestHandler = async (
@@ -80,7 +86,9 @@ export const meNotificationsController: RequestHandler = async (
       data: { size: notifications.length, notifications },
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const meVitalStatsController: RequestHandler = async (
@@ -110,5 +118,7 @@ export const meVitalStatsController: RequestHandler = async (
       },
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };

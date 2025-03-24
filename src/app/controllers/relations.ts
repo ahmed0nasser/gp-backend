@@ -23,7 +23,9 @@ export const relationFetchController: RequestHandler = async (
       data: relation,
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const relationStatusController: RequestHandler = async (
@@ -47,7 +49,9 @@ export const relationStatusController: RequestHandler = async (
       message: "Relation request " + req.body.status + "successfully",
     });
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const relationDeleteController: RequestHandler = async (
@@ -64,5 +68,7 @@ export const relationDeleteController: RequestHandler = async (
 
     res.sendStatus(204);
     return;
-  } catch (error) {}
+  } catch (error) {
+    next(error);
+  }
 };
