@@ -8,7 +8,9 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   if (err instanceof APIError) {
     res.status(err.statusCode).json({ status: "error", error: err.errRes });
   } else {
-    res.status(500).json({ status: "error", error: err });
+    res
+      .status(500)
+      .json({ status: "error", error: { name: err.name, ...err } });
   }
 };
 
