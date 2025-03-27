@@ -16,3 +16,7 @@ export const getNextSequence = async (name: CounterId) => {
 
   return counter.sequenceValue;
 };
+
+export const resetCounter = async (name: CounterId) => {
+  await Counter.findByIdAndDelete(name);
+};
