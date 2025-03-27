@@ -20,7 +20,7 @@ interface UserLogin {
   password: string;
 }
 
-interface UserTokens {
+export interface UserTokens {
   accessToken: string;
   refreshToken: string;
   expiresIn: string;
