@@ -39,7 +39,7 @@ export const usersGetUserProfileController: RequestHandler = async (
     }
 
     if (
-      req.userClaim.id !== Number(req.params.id) &&
+      req.userClaim.id != Number(req.params.id) &&
       !(await areRelated(req.userClaim.id, Number(req.params.id)))
     ) {
       throw new APIError(403, {
