@@ -1,3 +1,4 @@
+import APIError from "../errors/APIError";
 import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import User from "../models/user";
 import { UserRole } from "../schemas/database/user";
@@ -14,13 +15,22 @@ interface UserProfile {
   id: number;
   firstName: string;
   lastName: string;
-  phoneNumber: number;
+  phoneNumber: string;
   title?: string;
   organization?: string;
   impairment?: string;
   img: string;
   email: string;
   role: UserRole;
+}
+
+interface UserProfileChange {
+  firstName?: string;
+  lastName?: string;
+  title?: string;
+  phoneNumber?: string;
+  organization?: string;
+  impairment?: string;
 }
 
 export const getUserInfoById = async (userId: number): Promise<UserInfo> => {
@@ -70,4 +80,34 @@ export const getUserProfileById = async (
   }
 
   return userProfile;
+};
+
+export const changeUserProfile = async (
+  userId: number,
+  profile: UserProfileChange
+) => {
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new UserDoesNotExistError(userId);
+  }
+
+  if (user.role === "caregiver" && profile.impairment) {
+    throw new APIError(400, {
+      message: "Cannot write profile changes",
+      details:
+        'user with role="caregiver" cannot have impairment field in profile',
+    });
+  } else if (user.role === "ward" && (profile.title || profile.organization)) {
+    throw new APIError(400, {
+      message: "Cannot write profile changes",
+      details:
+        'user with role="ward" cannot have title field or organization in profile',
+    });
+  }
+
+  for (let key in profile) {
+    (user as any)[key] = (profile as any)[key];
+  }
+
+  await user.save();
 };
