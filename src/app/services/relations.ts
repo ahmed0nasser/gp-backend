@@ -74,6 +74,12 @@ export const sendRelationRequest = async (
   senderId: number,
   receiverId: number
 ): Promise<number> => {
+  if (senderId === receiverId) {
+    throw new APIError(403, {
+      message: "Cannot send relation request to yourself",
+    });
+  }
+
   const sender = await User.findById(senderId, "_id relations");
   if (!sender) {
     throw new UserDoesNotExistError(senderId);
