@@ -1,11 +1,11 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
 import { notificationsQuerySchema } from "../schemas/validation/notifications";
 import { idParamsSchema } from "../schemas/validation/common";
 import {
   usersGetNotificationsController,
+  usersGetUserProfileController,
   usersGetVitalStatsController,
   usersPostRelationController,
 } from "../controllers/users";
@@ -15,7 +15,6 @@ const router = Router();
 router.post(
   "/:id/relations",
   validateRequest("params", idParamsSchema),
-  validateRequest("query", notificationsQuerySchema),
   usersPostRelationController
 );
 
@@ -24,6 +23,12 @@ router.get(
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
   usersGetNotificationsController
+);
+
+router.get(
+  "/:id/profile",
+  validateRequest("params", idParamsSchema),
+  usersGetUserProfileController
 );
 
 router.get(
