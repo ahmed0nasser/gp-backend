@@ -39,6 +39,18 @@ export const getRelationsByUserId = async (
   return userRelations;
 };
 
+export const areRelated = async (
+  userId1: number,
+  userId2: number
+): Promise<boolean> => {
+  const user = await User.findById(userId1, "relations");
+  if (!user) {
+    throw new UserDoesNotExistError(userId1);
+  }
+
+  return user.relations.some((relation) => relation.relatedUserId === userId2);
+};
+
 export const getRelation = async (
   userId: number,
   relationId: number
