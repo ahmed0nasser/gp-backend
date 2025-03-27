@@ -13,7 +13,7 @@ export interface IUser {
   fullName: string;
   title: string;
   organization: string;
-  phoneNumber: number;
+  phoneNumber: string;
   impairment: string;
   img: string;
   email: string;
@@ -36,6 +36,7 @@ const userSchema = new Schema<IUser>({
   img: { type: String, default: "" },
   title: { type: String, default: "" },
   organization: { type: String, default: "" },
+  phoneNumber: { type: String, default: "" },
   impairment: { type: String, default: "" },
   relations: [relationSchema],
   notifications: [notificationSchema],
