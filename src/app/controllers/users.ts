@@ -2,6 +2,7 @@ import { RequestHandler, Request } from "express";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import { getNotificationsByUserId } from "../services/notifications";
 import { sendRelationRequest } from "../services/relations";
+import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 
 export const usersGetNotificationsController: RequestHandler = async (
   req: Request,
@@ -59,9 +60,9 @@ export const usersPostRelationController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
+    
     const relationId = await sendRelationRequest(
       Number(req.userClaim.id),
       Number(req.params.id)

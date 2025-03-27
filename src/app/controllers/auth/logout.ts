@@ -1,11 +1,11 @@
 import { Request, RequestHandler } from "express";
 import { logoutUser } from "../../services/auth";
+import UnableAuthenticateUserError from "../../errors/UnableAuthenticateUserError";
 
 const logoutController: RequestHandler = async (req: Request, res, next) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
     await logoutUser(req.userClaim.id);
     res.sendStatus(204);

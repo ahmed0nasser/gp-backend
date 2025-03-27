@@ -3,6 +3,7 @@ import { getUserInfoById, getUserProfileById } from "../services/users";
 import { getRelationsByUserId } from "../services/relations";
 import { getNotificationsByUserId } from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
+import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 
 export const meInfoController: RequestHandler = async (
   req: Request,
@@ -11,8 +12,7 @@ export const meInfoController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const userInfo = await getUserInfoById(req.userClaim.id);
@@ -31,8 +31,7 @@ export const meRelationsController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const relations = await getRelationsByUserId(req.userClaim.id);
@@ -51,8 +50,7 @@ export const meProfileController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const userProfile = await getUserProfileById(req.userClaim.id);
@@ -71,8 +69,7 @@ export const meNotificationsController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const notifications = await getNotificationsByUserId(
@@ -98,8 +95,7 @@ export const meVitalStatsController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const vitalStats = await getVitalStatsByUserId(

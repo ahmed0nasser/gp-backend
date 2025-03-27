@@ -4,6 +4,7 @@ import {
   deleteRelation,
   getRelation,
 } from "../services/relations";
+import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 
 export const relationFetchController: RequestHandler = async (
   req: Request,
@@ -12,8 +13,7 @@ export const relationFetchController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
 
     const relation = await getRelation(req.userClaim.id, Number(req.params.id));
@@ -35,9 +35,9 @@ export const relationStatusController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
+
     const notifications = await changeRelationStatus(
       req.userClaim.id,
       Number(req.params.id),
@@ -61,9 +61,9 @@ export const relationDeleteController: RequestHandler = async (
 ) => {
   try {
     if (!req.userClaim) {
-      // internal server error
-      throw new Error();
+      throw new UnableAuthenticateUserError();
     }
+    
     await deleteRelation(req.userClaim.id, Number(req.params.id));
 
     res.sendStatus(204);
