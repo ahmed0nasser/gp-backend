@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { idParamsSchema } from "../schemas/validation/common";
 import { relationStatusSchema } from "../schemas/validation/relations";

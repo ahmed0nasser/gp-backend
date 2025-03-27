@@ -1,5 +1,4 @@
 import { Router } from "express";
-import authUserHandler from "../middleware/authUserHandler";
 import { validateRequest } from "../middleware/validateRequest";
 import { notificationsQuerySchema } from "../schemas/validation/notifications";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
