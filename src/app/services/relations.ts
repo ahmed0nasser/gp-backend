@@ -48,7 +48,10 @@ export const areRelated = async (
     throw new UserDoesNotExistError(userId1);
   }
 
-  return user.relations.some((relation) => relation.relatedUserId === userId2);
+  return user.relations.some(
+    (relation) =>
+      relation.type === "relation" && relation.relatedUserId === userId2
+  );
 };
 
 export const getRelation = async (
@@ -143,8 +146,8 @@ export const changeRelationStatus = async (
           details: "relation must have type=incoming to be rejectable",
         });
       }
-      deleteUserRelation(initiator, initiatorRelation);
-      deleteUserRelation(affected, affectedRelation);
+      deleteUserRelation(initiator, relationId);
+      deleteUserRelation(affected, relationId);
       break;
     case "canceled":
       if (initiatorRelation.type !== "outgoing") {
@@ -153,8 +156,8 @@ export const changeRelationStatus = async (
           details: "relation must have type=outgoing to be cancelable",
         });
       }
-      deleteUserRelation(initiator, initiatorRelation);
-      deleteUserRelation(affected, affectedRelation);
+      deleteUserRelation(initiator, relationId);
+      deleteUserRelation(affected, relationId);
       break;
   }
 
@@ -165,11 +168,24 @@ export const changeRelationStatus = async (
 export const deleteRelation = async (userId: number, relationId: number) => {
   const { user: initiator, relation: initiatorRelation } =
     await getUserRelationPair(userId, relationId);
-  const { user: affected, relation: affectedRelation } =
-    await getUserRelationPair(initiatorRelation.relatedUserId, relationId);
 
-  deleteUserRelation(initiator, initiatorRelation);
-  deleteUserRelation(affected, affectedRelation);
+  if (initiatorRelation.type !== "relation") {
+    throw new APIError(403, {
+      message: "Cannot delete relation",
+      details: 'relation must be of type="relation" to be deletable',
+    });
+  }
+
+  const affected = await User.findById(
+    initiatorRelation.relatedUserId,
+    "relations"
+  );
+  if (!affected) {
+    throw new UserDoesNotExistError(initiatorRelation.relatedUserId);
+  }
+
+  deleteUserRelation(initiator, relationId);
+  deleteUserRelation(affected, relationId);
 
   await initiator.save();
   await affected.save();
@@ -194,6 +210,8 @@ const getUserRelationPair = async (userId: number, relationId: number) => {
   return { user, relation };
 };
 
-const deleteUserRelation = (user: IUser, relation: IRelation) => {
-  user.relations.filter((rel) => rel !== relation);
+const deleteUserRelation = (user: IUser, relationId: number) => {
+  user.relations = user.relations.filter(
+    (relation) => relation._id !== relationId
+  );
 };
