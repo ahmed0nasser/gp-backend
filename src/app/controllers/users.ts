@@ -1,8 +1,10 @@
 import { RequestHandler, Request } from "express";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import { getNotificationsByUserId } from "../services/notifications";
-import { sendRelationRequest } from "../services/relations";
+import { areRelated, sendRelationRequest } from "../services/relations";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
+import { getUserProfileById } from "../services/users";
+import APIError from "../errors/APIError";
 
 export const usersGetNotificationsController: RequestHandler = async (
   req: Request,
@@ -19,6 +21,38 @@ export const usersGetNotificationsController: RequestHandler = async (
     res.status(200).json({
       status: "success",
       data: { size: notifications.length, notifications },
+    });
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const usersGetUserProfileController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    if (
+      req.userClaim.id !== Number(req.params.id) &&
+      !(await areRelated(req.userClaim.id, Number(req.params.id)))
+    ) {
+      throw new APIError(403, {
+        message: "Unauthorized access",
+        details: "cannot get profile of userId=" + req.params.id,
+      });
+    }
+
+    const profile = await getUserProfileById(Number(req.params.id));
+
+    res.status(200).json({
+      status: "success",
+      data: profile,
     });
     return;
   } catch (error) {
@@ -62,7 +96,7 @@ export const usersPostRelationController: RequestHandler = async (
     if (!req.userClaim) {
       throw new UnableAuthenticateUserError();
     }
-    
+
     const relationId = await sendRelationRequest(
       Number(req.userClaim.id),
       Number(req.params.id)
