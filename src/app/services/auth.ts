@@ -4,7 +4,6 @@ import { getNextSequence } from "../models/counter";
 import { UserRole } from "../schemas/database/user";
 import User from "../models/user";
 import APIError from "../errors/APIError";
-import userClaimSchema from "../schemas/validation/userClaim";
 import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 
 interface NewUser {
@@ -114,12 +113,10 @@ export const refreshUserAccessToken = async (
     userClaim = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
-    );      
+    );
   } catch (_) {
     throw new APIError(404, { message: "Invalid refresh token" });
   }
-
-  await validateUserClaim(userClaim);
 
   const accessToken = jwt.sign(
     userClaim,
@@ -145,15 +142,14 @@ export const logoutUser = async (userId: number) => {
 export const authUser = async (token: string): Promise<UserClaim> => {
   let userClaim;
   try {
-    userClaim = jwt.verify(
-      token,
-      process.env.ACCESS_TOKEN_SECRET as string
-    );     
-  } catch (_) {
-    throw new APIError(404, { message: "Invalid access token" });
+    userClaim = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
+  } catch (err) {
+    if (err instanceof jwt.TokenExpiredError)
+      throw new APIError(403, { message: "jwt expired" });
+    else if (err instanceof jwt.JsonWebTokenError)
+      throw new APIError(403, { message: "jwt malformed" });
+    else throw new APIError(404, { message: "invalid jwt" });
   }
-
-  await validateUserClaim(userClaim);
 
   return userClaim as UserClaim;
 };
@@ -161,6 +157,3 @@ export const authUser = async (token: string): Promise<UserClaim> => {
 // ====================================
 // HELPERS
 // ====================================
-const validateUserClaim = async (userClaim: unknown) => {
-  await userClaimSchema.validateAsync(userClaim);
-};
