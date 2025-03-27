@@ -13,7 +13,7 @@ const authUserHandler: RequestHandler = async (req: Request, res, next) => {
       });
     }
 
-    req.userClaim = await authUser(token as string);;
+    req.userClaim = await authUser(token as string);
 
     next();
   } catch (error) {
