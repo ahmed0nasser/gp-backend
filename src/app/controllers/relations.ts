@@ -46,7 +46,7 @@ export const relationStatusController: RequestHandler = async (
 
     res.status(200).json({
       status: "success",
-      message: "Relation request " + req.body.status + "successfully",
+      message: "Relation request " + req.body.status + " successfully",
     });
     return;
   } catch (error) {
