@@ -13,7 +13,7 @@ export const getNotificationsByUserId = async (
     throw new UserDoesNotExistError(userId);
   }
 
-  const maxPageNum = getNotificationsPagesNum(user.notifications.length);
+  const maxPageNum = getNotificationsPagesNum(user.notifications.length) + 1;
   if (page > maxPageNum) {
     throw new APIError(400, {
       message: "Unavailable page number",
