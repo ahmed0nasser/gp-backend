@@ -12,7 +12,9 @@ const app = express();
 // ====================================
 // DB CONNECTION
 // ====================================
-const DB_CONNECTION_STRING = (process.env.NODE_ENV === "testing"? process.env.TEST_DB : process.env.DB) as string;
+const DB_CONNECTION_STRING = (
+  process.env.NODE_ENV === "testing" ? process.env.TEST_DB : process.env.DB
+) as string;
 mongoose.connect(DB_CONNECTION_STRING);
 
 // ====================================
@@ -39,3 +41,5 @@ app.use(errorHandler);
 app.listen(process.env.PORT, () => {
   console.log("Server is listening...");
 });
+
+export default app;
