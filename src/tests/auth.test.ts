@@ -3,17 +3,13 @@ import { beforeEach, before, after, describe, it } from "node:test";
 import request from "supertest";
 import app from "../app/app";
 import User from "../app/models/user";
-import { resetCounter } from "../app/models/counter";
+import {
+  deleteUserAndResetCounter,
+  testUser,
+  registerUser,
+  userId,
+} from "./utils/user";
 
-const userId = 1;
-const originalBody = {
-  firstName: "Jhon",
-  lastName: "Doe",
-  email: "jhondoe11@ii.com",
-  password: "123456789",
-  repeatPassword: "123456789",
-  role: "caregiver",
-} as any;
 let body = {
   firstName: "",
   lastName: "",
@@ -23,21 +19,12 @@ let body = {
   role: "",
 } as any;
 
-const registerUser = async () => {
-  await request(app).post("/auth/register").send(originalBody);
-};
-
-const deleteUserAndResetCounter = async () => {
-  await User.findByIdAndDelete(userId);
-  await resetCounter("user");
-};
-
 describe("POST /auth/register", () => {
   before(deleteUserAndResetCounter);
   beforeEach(() => {
     // Reset the body
-    for (let key in originalBody) {
-      body[key] = originalBody[key];
+    for (let key in testUser) {
+      body[key] = testUser[key];
     }
   });
 
