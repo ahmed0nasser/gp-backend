@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { Schema, ValidationError } from "joi";
+import Joi, { Schema } from "joi";
 import APIError from "../errors/APIError";
 
 type validationType = "body" | "query" | "params";
@@ -30,7 +30,7 @@ export const validateRequest = (
 
       next();
     } catch (error) {
-      if (error instanceof ValidationError) {
+      if (error instanceof Joi.ValidationError) {
         next(
           new APIError(400, {
             message: errorMessage[type],
