@@ -103,23 +103,24 @@ export const loginUser = async ({
 export const refreshUserAccessToken = async (
   refreshToken: string
 ): Promise<string> => {
-  const isSameUserRefreshToken = await User.exists({ refreshToken });
-  if (!isSameUserRefreshToken) {
-    throw new APIError(404, { message: "Invalid refresh token" });
-  }
-
   let userClaim;
   try {
     userClaim = jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET as string
-    );
+    ) as UserClaim;
   } catch (_) {
-    throw new APIError(404, { message: "Invalid refresh token" });
+    throw new APIError(401, { message: "Invalid refresh token" });
   }
 
+  const user = await User.findOne({ _id: userClaim.id, refreshToken });
+  if (!user) {
+    throw new APIError(401, { message: "Invalid refresh token" });
+  }
+
+  // Generate new access token
   const accessToken = jwt.sign(
-    userClaim,
+    { id: user._id, role: user.role },
     process.env.ACCESS_TOKEN_SECRET as string,
     { expiresIn }
   );
@@ -144,6 +145,7 @@ export const authUser = async (token: string): Promise<UserClaim> => {
   try {
     userClaim = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
   } catch (err) {
+    console.log(err);
     if (err instanceof jwt.TokenExpiredError)
       throw new APIError(403, { message: "jwt expired" });
     else if (err instanceof jwt.JsonWebTokenError)
