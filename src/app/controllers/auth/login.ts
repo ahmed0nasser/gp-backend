@@ -7,7 +7,7 @@ const loginController: RequestHandler = async (req, res, next) => {
     res
       .status(200)
       .json({ status: "success", message: "Successful login", data: tokens });
-      return;
+    return;
   } catch (error) {
     next(error);
   }

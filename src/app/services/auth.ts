@@ -21,6 +21,7 @@ interface UserLogin {
 }
 
 export interface UserTokens {
+  userId: number;
   accessToken: string;
   refreshToken: string;
   expiresIn: string;
@@ -97,12 +98,12 @@ export const loginUser = async ({
   sameEmailUser.refreshToken = refreshToken;
   await sameEmailUser.save();
 
-  return { accessToken, refreshToken, expiresIn };
+  return { userId: sameEmailUser.id, accessToken, refreshToken, expiresIn };
 };
 
 export const refreshUserAccessToken = async (
   refreshToken: string
-): Promise<string> => {
+): Promise<{ userId: number; accessToken: string }> => {
   let userClaim;
   try {
     userClaim = jwt.verify(
@@ -125,7 +126,7 @@ export const refreshUserAccessToken = async (
     { expiresIn }
   );
 
-  return accessToken;
+  return { userId: user._id, accessToken };
 };
 
 export const logoutUser = async (userId: number) => {
@@ -145,7 +146,6 @@ export const authUser = async (token: string): Promise<UserClaim> => {
   try {
     userClaim = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET as string);
   } catch (err) {
-    console.log(err);
     if (err instanceof jwt.TokenExpiredError)
       throw new APIError(403, { message: "jwt expired" });
     else if (err instanceof jwt.JsonWebTokenError)
