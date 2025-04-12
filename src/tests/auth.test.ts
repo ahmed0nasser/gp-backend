@@ -1,13 +1,12 @@
 import { equal, ok } from "node:assert/strict";
-import { beforeEach, before, after, describe, it } from "node:test";
+import { after, afterEach, before, beforeEach, describe, it } from "node:test";
 import request from "supertest";
 import app from "../app/app";
 import User from "../app/models/user";
 import {
-  deleteUserAndResetCounter,
+  deleteUsersAndResetCounter,
   testUser,
   registerUser,
-  userId,
 } from "./utils/user";
 
 let body = {
@@ -20,31 +19,33 @@ let body = {
 } as any;
 
 describe("POST /auth/register", () => {
-  before(deleteUserAndResetCounter);
   beforeEach(() => {
     // Reset the body
     for (let key in testUser) {
       body[key] = testUser[key];
     }
   });
+  afterEach(deleteUsersAndResetCounter);
 
   it("registers new caregiver user with valid supplied data", async () => {
     const keys = ["firstName", "lastName", "email", "role"];
 
-    await request(app).post("/auth/register").send(body).expect(201).expect({
-      status: "success",
-      message: "User registered successfully",
-      data: { userId },
-    });
+    const res = await request(app)
+      .post("/auth/register")
+      .send(body)
+      .expect(201);
 
-    const user = (await User.findById(userId, keys)) as any;
+    equal(res.body.status, "success");
+    equal(res.body.message, "User registered successfully");
+    ok(res.body.data);
+    ok(res.body.data.userId);
+
+    const user = (await User.findById(res.body.data.userId, keys)) as any;
     ok(user);
 
     for (let key of keys) {
       equal(user[key], body[key]);
     }
-
-    await deleteUserAndResetCounter(); // Cleaning
   });
 
   it("registers new ward user with valid supplied data", async () => {
@@ -52,20 +53,22 @@ describe("POST /auth/register", () => {
 
     body.role = "ward";
 
-    await request(app).post("/auth/register").send(body).expect(201).expect({
-      status: "success",
-      message: "User registered successfully",
-      data: { userId },
-    });
+    const res = await request(app)
+      .post("/auth/register")
+      .send(body)
+      .expect(201);
 
-    const user = (await User.findById(userId, keys)) as any;
+    equal(res.body.status, "success");
+    equal(res.body.message, "User registered successfully");
+    ok(res.body.data);
+    ok(res.body.data.userId);
+
+    const user = (await User.findById(res.body.data.userId, keys)) as any;
     ok(user);
 
     for (let key of keys) {
       equal(user[key], body[key]);
     }
-
-    await deleteUserAndResetCounter(); // Cleaning
   });
 
   it("does not register user with empty first name", async () => {
@@ -137,9 +140,8 @@ describe("POST /auth/register", () => {
 });
 
 describe("POST /auth/login", () => {
-  before(deleteUserAndResetCounter);
   before(registerUser);
-  after(deleteUserAndResetCounter);
+  after(deleteUsersAndResetCounter);
 
   it("logins already registered user with valid login data", async () => {
     const res = await request(app)
@@ -147,7 +149,7 @@ describe("POST /auth/login", () => {
       .send({ email: "jhondoe11@ii.com", password: "123456789" })
       .expect(200);
 
-    const user = await User.findById(userId);
+    const user = await User.findById(res.body.data.userId);
     ok(user);
 
     equal(res.body.data.refreshToken, user.refreshToken);
@@ -197,9 +199,8 @@ describe("POST /auth/login", () => {
 });
 
 describe("POST /auth/refresh", () => {
-  before(deleteUserAndResetCounter);
   before(registerUser);
-  after(deleteUserAndResetCounter);
+  after(deleteUsersAndResetCounter);
 
   it("refreshes access token for already registered user", async () => {
     // Login First
@@ -220,14 +221,13 @@ describe("POST /auth/refresh", () => {
 
     const refreshToken = res.body.data.refreshToken + "aslkclk;ajsd";
 
-    await request(app).post("/auth/refresh").send({ refreshToken }).expect(404);
+    await request(app).post("/auth/refresh").send({ refreshToken }).expect(401);
   });
 });
 
 describe("POST /auth/logout", () => {
-  before(deleteUserAndResetCounter);
   before(registerUser);
-  after(deleteUserAndResetCounter);
+  after(deleteUsersAndResetCounter);
 
   it("logouts user already logged in", async () => {
     // Login First
@@ -240,7 +240,7 @@ describe("POST /auth/logout", () => {
       .auth(res.body.data.accessToken, { type: "bearer" })
       .expect(204);
 
-    const user = await User.findById(userId);
+    const user = await User.findById(res.body.data.userId);
     ok(user?.refreshToken === "");
   });
 

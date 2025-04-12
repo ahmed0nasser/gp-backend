@@ -4,8 +4,6 @@ import User from "../../app/models/user";
 import { resetCounter } from "../../app/models/counter";
 import { UserTokens } from "../../app/services/auth";
 
-export const userId = 1;
-
 export const testUser = {
   firstName: "Jhon",
   lastName: "Doe",
@@ -27,7 +25,7 @@ export const loginUser = async () => {
   return res.body.data as UserTokens;
 };
 
-export const deleteUserAndResetCounter = async () => {
-  await User.findByIdAndDelete(userId);
+export const deleteUsersAndResetCounter = async () => {
+  await User.deleteMany({});
   await resetCounter("user");
 };
