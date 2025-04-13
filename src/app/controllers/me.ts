@@ -5,7 +5,11 @@ import {
   getUserProfileById,
 } from "../services/users";
 import { getRelationsByUserId } from "../services/relations";
-import { getNotificationsByUserId, readNotifications } from "../services/notifications";
+import {
+  deleteNotification,
+  getNotificationsByUserId,
+  readNotifications,
+} from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 
@@ -122,6 +126,25 @@ export const meReadNotificationsController: RequestHandler = async (
     }
 
     await readNotifications(Number(req.userClaim.id), req.body.ids);
+
+    res.sendStatus(204);
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const meDeleteNotificationController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    await deleteNotification(Number(req.userClaim.id), Number(req.params.id));
 
     res.sendStatus(204);
     return;

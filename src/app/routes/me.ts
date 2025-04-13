@@ -1,9 +1,13 @@
 import { Router } from "express";
 import { validateRequest } from "../middleware/validateRequest";
-import { notificationReadSchema, notificationsQuerySchema } from "../schemas/validation/notifications";
+import {
+  notificationReadSchema,
+  notificationsQuerySchema,
+} from "../schemas/validation/notifications";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
 import {
   meChangeProfileController,
+  meDeleteNotificationController,
   meInfoController,
   meNotificationsController,
   meProfileController,
@@ -12,6 +16,7 @@ import {
   meVitalStatsController,
 } from "../controllers/me";
 import { profileChangeSchema } from "../schemas/validation/profile";
+import { idParamsSchema } from "../schemas/validation/common";
 
 const router = Router();
 
@@ -39,6 +44,11 @@ router.patch(
   meReadNotificationsController
 );
 
+router.delete(
+  "/notifications/:id",
+  validateRequest("params", idParamsSchema),
+  meDeleteNotificationController
+);
 
 router.get(
   "/vital-stats",

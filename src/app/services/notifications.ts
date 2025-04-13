@@ -88,6 +88,26 @@ export const readNotifications = async (
   await user.save();
 };
 
+export const deleteNotification = async (
+  userId: number,
+  notificationId: number
+) => {
+  const user = await User.findById(userId, "notifications");
+  if (!user) {
+    throw new UserDoesNotExistError(userId);
+  }
+
+  const notificationIndex = user.notifications.findIndex(
+    (notification) => notification._id === notificationId
+  );
+  if (notificationIndex === -1)
+    throw new NotificationDoesNotExistError(userId, notificationId);
+
+  user.notifications.splice(notificationIndex, 1);
+
+  await user.save();
+};
+
 // ====================================
 // HELPERS
 // ====================================
