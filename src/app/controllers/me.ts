@@ -5,7 +5,7 @@ import {
   getUserProfileById,
 } from "../services/users";
 import { getRelationsByUserId } from "../services/relations";
-import { getNotificationsByUserId } from "../services/notifications";
+import { getNotificationsByUserId, readNotifications } from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 
@@ -105,6 +105,25 @@ export const meNotificationsController: RequestHandler = async (
       status: "success",
       data: { size: notifications.length, notifications },
     });
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const meReadNotificationsController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    await readNotifications(Number(req.userClaim.id), req.body.ids);
+
+    res.sendStatus(204);
     return;
   } catch (error) {
     next(error);

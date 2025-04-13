@@ -1,4 +1,5 @@
 import APIError from "../errors/APIError";
+import NotificationDoesNotExistError from "../errors/NotificationDoesNotExistError";
 import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import { getNextSequence } from "../models/counter";
 import User from "../models/user";
@@ -60,6 +61,31 @@ export const sendNotification = async (
   await receiver.save();
 
   return notificationId;
+};
+
+export const readNotifications = async (
+  userId: number,
+  notificationIds: number[]
+) => {
+  const user = await User.findById(userId, "notifications");
+  if (!user) {
+    throw new UserDoesNotExistError(userId);
+  }
+
+  const notifications = notificationIds.map((notificationId) => {
+    const notification = user.notifications.find(
+      (notification) => notification._id === notificationId
+    );
+    if (!notification)
+      throw new NotificationDoesNotExistError(userId, notificationId);
+    return notification;
+  });
+
+  for (let notification of notifications) {
+    notification.isRead = true;
+  }
+
+  await user.save();
 };
 
 // ====================================
