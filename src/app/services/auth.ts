@@ -33,7 +33,7 @@ export interface UserClaim {
 }
 
 // Access Token expiration
-const expiresIn = "1h";
+const expiresIn = process.env.ACCESS_TOKEN_EXPIRY as any;
 
 export const registerNewUser = async ({
   firstName,
