@@ -38,7 +38,7 @@ export const relationStatusController: RequestHandler = async (
       throw new UnableAuthenticateUserError();
     }
 
-    const notifications = await changeRelationStatus(
+    await changeRelationStatus(
       req.userClaim.id,
       Number(req.params.id),
       req.body.status
