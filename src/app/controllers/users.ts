@@ -1,6 +1,9 @@
 import { RequestHandler, Request } from "express";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
-import { getNotificationsByUserId } from "../services/notifications";
+import {
+  getNotificationsByUserId,
+  sendNotification,
+} from "../services/notifications";
 import { areRelated, sendRelationRequest } from "../services/relations";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 import { getUserProfileById } from "../services/users";
@@ -106,6 +109,33 @@ export const usersPostRelationController: RequestHandler = async (
       status: "success",
       message: "Relation Request sent successfully",
       data: { relationId },
+    });
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const usersPostNotificationController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    const notificationId = await sendNotification(
+      Number(req.userClaim.id),
+      Number(req.params.id),
+      req.body
+    );
+
+    res.status(201).json({
+      status: "success",
+      message: "Notification sent successfully",
+      data: { notificationId },
     });
     return;
   } catch (error) {

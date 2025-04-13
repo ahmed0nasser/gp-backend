@@ -1,12 +1,13 @@
 import { Router } from "express";
 import { validateRequest } from "../middleware/validateRequest";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
-import { notificationsQuerySchema } from "../schemas/validation/notifications";
+import { notificationSchema, notificationsQuerySchema } from "../schemas/validation/notifications";
 import { idParamsSchema } from "../schemas/validation/common";
 import {
   usersGetNotificationsController,
   usersGetUserProfileController,
   usersGetVitalStatsController,
+  usersPostNotificationController,
   usersPostRelationController,
 } from "../controllers/users";
 
@@ -23,6 +24,13 @@ router.get(
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
   usersGetNotificationsController
+);
+
+router.post(
+  "/:id/notifications",
+  validateRequest("params", idParamsSchema),
+  validateRequest("body", notificationSchema),
+  usersPostNotificationController
 );
 
 router.get(
