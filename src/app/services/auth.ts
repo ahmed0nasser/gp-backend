@@ -6,7 +6,7 @@ import User from "../models/user";
 import APIError from "../errors/APIError";
 import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 
-interface NewUser {
+export interface NewUser {
   firstName: string;
   lastName: string;
   email: string;

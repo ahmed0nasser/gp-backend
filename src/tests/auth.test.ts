@@ -4,9 +4,10 @@ import request from "supertest";
 import app from "../app/app";
 import User from "../app/models/user";
 import {
-  deleteUsersAndResetCounter,
-  testUser,
+  deleteUsersAndResetCounters,
+  testUser1,
   registerUser,
+  loginUser,
 } from "./utils/user";
 
 let body = {
@@ -21,11 +22,11 @@ let body = {
 describe("POST /auth/register", () => {
   beforeEach(() => {
     // Reset the body
-    for (let key in testUser) {
-      body[key] = testUser[key];
+    for (let key in testUser1) {
+      body[key] = (testUser1 as any)[key];
     }
   });
-  afterEach(deleteUsersAndResetCounter);
+  afterEach(deleteUsersAndResetCounters);
 
   it("registers new caregiver user with valid supplied data", async () => {
     const keys = ["firstName", "lastName", "email", "role"];
@@ -140,13 +141,13 @@ describe("POST /auth/register", () => {
 });
 
 describe("POST /auth/login", () => {
-  before(registerUser);
-  after(deleteUsersAndResetCounter);
+  before(async () => await registerUser(testUser1));
+  after(deleteUsersAndResetCounters);
 
   it("logins already registered user with valid login data", async () => {
     const res = await request(app)
       .post("/auth/login")
-      .send({ email: "jhondoe11@ii.com", password: "123456789" })
+      .send({ email: testUser1.email, password: testUser1.password })
       .expect(200);
 
     const user = await User.findById(res.body.data.userId);
@@ -165,7 +166,7 @@ describe("POST /auth/login", () => {
   it("does not login user with wrong password", async () => {
     await request(app)
       .post("/auth/login")
-      .send({ email: "jhondoe11@ii.com", password: "12345678910" })
+      .send({ email: testUser1.email, password: "12345678910" })
       .expect(401);
   });
 
@@ -199,48 +200,44 @@ describe("POST /auth/login", () => {
 });
 
 describe("POST /auth/refresh", () => {
-  before(registerUser);
-  after(deleteUsersAndResetCounter);
+  before(async () => await registerUser(testUser1));
+  after(deleteUsersAndResetCounters);
 
   it("refreshes access token for already registered user", async () => {
     // Login First
-    const res = await request(app)
-      .post("/auth/login")
-      .send({ email: "jhondoe11@ii.com", password: "123456789" });
-
-    const refreshToken = res.body.data.refreshToken;
+    const { refreshToken } = await loginUser(testUser1);
 
     await request(app).post("/auth/refresh").send({ refreshToken }).expect(200);
   });
 
   it("does not refresh access token for unknown refresh token", async () => {
     // Login First
-    const res = await request(app)
-      .post("/auth/login")
-      .send({ email: "jhondoe11@ii.com", password: "123456789" });
+    const thing = await loginUser(testUser1);
+    console.log(thing);
 
-    const refreshToken = res.body.data.refreshToken + "aslkclk;ajsd";
+    const malformedRefreshToken = thing.refreshToken + "aslkclk;ajsd";
 
-    await request(app).post("/auth/refresh").send({ refreshToken }).expect(401);
+    await request(app)
+      .post("/auth/refresh")
+      .send({ refreshToken: malformedRefreshToken })
+      .expect(401);
   });
 });
 
 describe("POST /auth/logout", () => {
-  before(registerUser);
-  after(deleteUsersAndResetCounter);
+  before(async () => await registerUser(testUser1));
+  after(deleteUsersAndResetCounters);
 
   it("logouts user already logged in", async () => {
     // Login First
-    const res = await request(app)
-      .post("/auth/login")
-      .send({ email: "jhondoe11@ii.com", password: "123456789" });
+    const { accessToken, userId } = await loginUser(testUser1);
 
     await request(app)
       .post("/auth/logout")
-      .auth(res.body.data.accessToken, { type: "bearer" })
+      .auth(accessToken, { type: "bearer" })
       .expect(204);
 
-    const user = await User.findById(res.body.data.userId);
+    const user = await User.findById(userId);
     ok(user?.refreshToken === "");
   });
 
