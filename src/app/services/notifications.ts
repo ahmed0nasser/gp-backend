@@ -6,7 +6,7 @@ import User from "../models/user";
 import { INotification } from "../schemas/database/notification";
 import { areRelated } from "./relations";
 
-type NewNotification = Omit<INotification, "_id" | "sender" | "isRead">;
+type NewNotification = Omit<INotification, "_id" | "senderId" | "isRead">;
 
 export const getNotificationsByUserId = async (
   userId: number,
@@ -36,22 +36,30 @@ export const sendNotification = async (
   receiverId: number,
   newNotification: NewNotification
 ): Promise<number> => {
-  const receiver = await User.findById(receiverId, "notifications");
-  if (!receiver) {
-    throw new UserDoesNotExistError(receiverId);
-  }
-
   if (!(await areRelated(senderId, receiverId))) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
+      details: `Sender with id=${senderId} is not related to receiver with id=${receiverId}`,
     });
+  }
+
+  if (!(await areRelated(receiverId, newNotification.relatedUserId))) {
+    throw new APIError(403, {
+      message: "Cannot send notification to unrelated user",
+      details: `Receiver with id=${receiverId} is not related to user with id=${newNotification.relatedUserId}`,
+    });
+  }
+
+  const receiver = await User.findById(receiverId, "notifications");
+  if (!receiver) {
+    throw new UserDoesNotExistError(receiverId);
   }
 
   // Create notification
   const notificationId = await getNextSequence("notification");
   const notification: INotification = {
     _id: notificationId,
-    sender: "UserId_" + senderId,
+    senderId,
     isRead: false,
     ...newNotification,
   };

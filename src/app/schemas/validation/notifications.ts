@@ -6,6 +6,7 @@ export const notificationSchema = Joi.object({
     .required(),
   title: Joi.string().required(),
   body: Joi.string().required(),
+  relatedUserId: Joi.number().greater(0).required(),
 }).unknown(false);
 
 export const notificationReadSchema = Joi.object({

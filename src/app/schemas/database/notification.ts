@@ -7,7 +7,8 @@ export interface INotification {
   type: NotificationType;
   title: string;
   body: string;
-  sender: string;
+  relatedUserId: number;
+  senderId: number;
   isRead: boolean;
 }
 
@@ -17,7 +18,8 @@ const notificationSchema = new Schema<INotification>(
     type: { type: String, required: true },
     title: { type: String, required: true },
     body: { type: String, required: true },
-    sender: String,
+    senderId: { type: Number, required: true },
+    relatedUserId: { type: Number, required: true },
     isRead: { type: Boolean, default: false },
   },
   { timestamps: true }

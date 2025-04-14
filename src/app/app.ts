@@ -31,6 +31,12 @@ app.use("/users", authUserHandler, usersRouter);
 app.use("/relations", authUserHandler, relationsRouter);
 
 // ====================================
+// ALL HANDLER
+// ====================================
+// #TODO: implement
+// app.all();
+
+// ====================================
 // ERROR HANDLERS
 // ====================================
 app.use(errorHandler);
