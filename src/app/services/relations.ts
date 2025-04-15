@@ -10,7 +10,7 @@ import { getUserInfoById, UserInfo } from "./users";
 export interface UserRelation {
   id: number;
   type: RelationType;
-  user?: UserInfo;
+  user?: UserInfo | { id: number };
 }
 
 export type RelationStatus = "accepted" | "rejected" | "canceled";
@@ -28,9 +28,11 @@ export const getRelationsByUserId = async (
       const userRelation: UserRelation = {
         id: relation._id,
         type: relation.type,
+        user:
+          relation.type === "outgoing"
+            ? { id: relation.relatedUserId }
+            : await getUserInfoById(relation.relatedUserId),
       };
-      if (relation.type !== "outgoing")
-        userRelation.user = await getUserInfoById(relation.relatedUserId);
 
       return userRelation;
     })
