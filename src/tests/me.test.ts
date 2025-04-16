@@ -11,6 +11,9 @@ import {
   testUser3,
 } from "./utils/user";
 import { relateUsers } from "./utils/relations";
+import { assertTestingEnv } from "./utils/common";
+
+assertTestingEnv();
 
 describe("GET /me", () => {
   before(async () => await registerUser(testUser1));

@@ -9,6 +9,9 @@ import {
   registerUser,
   loginUser,
 } from "./utils/user";
+import { assertTestingEnv } from "./utils/common";
+
+assertTestingEnv();
 
 let body = {
   firstName: "",
