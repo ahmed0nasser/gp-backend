@@ -6,7 +6,29 @@ import User from "../models/user";
 import { INotification } from "../schemas/database/notification";
 import { areRelated } from "./relations";
 
-type NewNotification = Omit<INotification, "_id" | "senderId" | "isRead">;
+export type NewNotification = Omit<
+  INotification,
+  "_id" | "senderId" | "isRead"
+>;
+
+export const getNotification = async (
+  userId: number,
+  notificationId: number
+): Promise<INotification> => {
+  const user = await User.findById(userId, "notifications");
+  if (!user) {
+    throw new UserDoesNotExistError(userId);
+  }
+
+  const notification = user.notifications.find(
+    (notification) => notification._id === notificationId
+  );
+  if (!notification) {
+    throw new NotificationDoesNotExistError(userId, notificationId);
+  }
+
+  return notification;
+};
 
 export const getNotificationsByUserId = async (
   userId: number,
@@ -36,14 +58,21 @@ export const sendNotification = async (
   receiverId: number,
   newNotification: NewNotification
 ): Promise<number> => {
-  if (!(await areRelated(senderId, receiverId))) {
+  if (senderId != receiverId || !(await areRelated(senderId, receiverId))) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
       details: `Sender with id=${senderId} is not related to receiver with id=${receiverId}`,
     });
   }
 
-  if (!(await areRelated(receiverId, newNotification.relatedUserId))) {
+  if (senderId != newNotification.relatedUserId || !(await areRelated(senderId, newNotification.relatedUserId))) {
+    throw new APIError(403, {
+      message: "Cannot send notification to unrelated user",
+      details: `Sender with id=${senderId} is not related to user with id=${newNotification.relatedUserId}`,
+    });
+  }
+
+  if (receiverId != newNotification.relatedUserId || !(await areRelated(receiverId, newNotification.relatedUserId))) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
       details: `Receiver with id=${receiverId} is not related to user with id=${newNotification.relatedUserId}`,

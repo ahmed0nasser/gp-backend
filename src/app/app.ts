@@ -3,6 +3,7 @@ import authRouter from "./routes/auth";
 import meRouter from "./routes/me";
 import usersRouter from "./routes/users";
 import relationsRouter from "./routes/relations";
+import notificationsRouter from "./routes/notifications";
 import errorHandler from "./middleware/errorHandler";
 import authUserHandler from "./middleware/authUserHandler";
 import mongoose from "mongoose";
@@ -29,6 +30,7 @@ app.use("/auth", authRouter);
 app.use("/me", authUserHandler, meRouter);
 app.use("/users", authUserHandler, usersRouter);
 app.use("/relations", authUserHandler, relationsRouter);
+app.use("/notifications", authUserHandler, notificationsRouter);
 
 // ====================================
 // ALL HANDLER
