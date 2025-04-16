@@ -1,35 +1,12 @@
 import { RequestHandler, Request } from "express";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import {
-  getNotificationsByUserId,
   sendNotification,
 } from "../services/notifications";
 import { areRelated, sendRelationRequest } from "../services/relations";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 import { getUserProfileById } from "../services/users";
 import APIError from "../errors/APIError";
-
-export const usersGetNotificationsController: RequestHandler = async (
-  req: Request,
-  res,
-  next
-) => {
-  try {
-    const notifications = await getNotificationsByUserId(
-      Number(req.params.id),
-      Number(req.query.page),
-      Number(req.query.size)
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: { size: notifications.length, notifications },
-    });
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const usersGetUserProfileController: RequestHandler = async (
   req: Request,

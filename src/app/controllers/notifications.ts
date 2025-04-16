@@ -3,8 +3,33 @@ import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 import {
   deleteNotification,
   getNotification,
+  getNotificationsByUserId,
   readNotifications,
 } from "../services/notifications";
+
+export const notificationsFetchController =
+  (user: "me" | "user"): RequestHandler =>
+  async (req: Request, res, next) => {
+    try {
+      if (!req.userClaim) {
+        throw new UnableAuthenticateUserError();
+      }
+
+      const notifications = await getNotificationsByUserId(
+        Number(user === "me" ? req.userClaim.id : req.params.id),
+        Number(req.query.page),
+        Number(req.query.size)
+      );
+
+      res.status(200).json({
+        status: "success",
+        data: { size: notifications.length, notifications },
+      });
+      return;
+    } catch (error) {
+      next(error);
+    }
+  };
 
 export const notificationsReadController: RequestHandler = async (
   req: Request,
@@ -25,7 +50,7 @@ export const notificationsReadController: RequestHandler = async (
   }
 };
 
-export const notificationFetchController: RequestHandler = async (
+export const notificationFetchOneController: RequestHandler = async (
   req: Request,
   res,
   next

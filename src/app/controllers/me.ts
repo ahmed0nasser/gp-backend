@@ -5,11 +5,6 @@ import {
   getUserProfileById,
 } from "../services/users";
 import { getRelationsByUserId } from "../services/relations";
-import {
-  deleteNotification,
-  getNotificationsByUserId,
-  readNotifications,
-} from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 import { pairDevice, unpairDevice } from "../services/devices";
@@ -82,70 +77,6 @@ export const meChangeProfileController: RequestHandler = async (
     }
 
     await changeUserProfile(req.userClaim.id, req.body);
-
-    res.sendStatus(204);
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const meNotificationsController: RequestHandler = async (
-  req: Request,
-  res,
-  next
-) => {
-  try {
-    if (!req.userClaim) {
-      throw new UnableAuthenticateUserError();
-    }
-
-    const notifications = await getNotificationsByUserId(
-      req.userClaim.id,
-      Number(req.query.page),
-      Number(req.query.size)
-    );
-
-    res.status(200).json({
-      status: "success",
-      data: { size: notifications.length, notifications },
-    });
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const meReadNotificationsController: RequestHandler = async (
-  req: Request,
-  res,
-  next
-) => {
-  try {
-    if (!req.userClaim) {
-      throw new UnableAuthenticateUserError();
-    }
-
-    await readNotifications(Number(req.userClaim.id), req.body.ids);
-
-    res.sendStatus(204);
-    return;
-  } catch (error) {
-    next(error);
-  }
-};
-
-export const meDeleteNotificationController: RequestHandler = async (
-  req: Request,
-  res,
-  next
-) => {
-  try {
-    if (!req.userClaim) {
-      throw new UnableAuthenticateUserError();
-    }
-
-    await deleteNotification(Number(req.userClaim.id), Number(req.params.id));
 
     res.sendStatus(204);
     return;

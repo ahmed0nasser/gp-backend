@@ -1,15 +1,21 @@
-import { Router } from "express";
+import { Request, Router } from "express";
 import { validateRequest } from "../middleware/validateRequest";
 import { vitalStatsQuerySchema } from "../schemas/validation/vitalStats";
-import { notificationSchema, notificationsQuerySchema } from "../schemas/validation/notifications";
+import {
+  notificationSchema,
+  notificationsQuerySchema,
+} from "../schemas/validation/notifications";
 import { idParamsSchema } from "../schemas/validation/common";
 import {
-  usersGetNotificationsController,
   usersGetUserProfileController,
   usersGetVitalStatsController,
   usersPostNotificationController,
   usersPostRelationController,
 } from "../controllers/users";
+import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
+import { areRelated } from "../services/relations";
+import APIError from "../errors/APIError";
+import { notificationsFetchController } from "../controllers/notifications";
 
 const router = Router();
 
@@ -23,7 +29,17 @@ router.get(
   "/:id/notifications",
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
-  usersGetNotificationsController
+  async (req: Request, res, next) => {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+    if (!(await areRelated(Number(req.userClaim.id), Number(req.params.id)))) {
+      throw new APIError(403, {
+        message: "Cannot get notifications of unrelated user",
+      });
+    }
+  },
+  notificationsFetchController("user")
 );
 
 router.post(

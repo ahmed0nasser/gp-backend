@@ -1,14 +1,24 @@
 import { Router } from "express";
 import { validateRequest } from "../middleware/validateRequest";
 import { idParamsSchema } from "../schemas/validation/common";
-import { notificationReadSchema } from "../schemas/validation/notifications";
+import {
+  notificationReadSchema,
+  notificationsQuerySchema,
+} from "../schemas/validation/notifications";
 import {
   notificationDeleteController,
-  notificationFetchController,
+  notificationFetchOneController,
+  notificationsFetchController,
   notificationsReadController,
 } from "../controllers/notifications";
 
 const router = Router();
+
+router.get(
+  "/notifications",
+  validateRequest("query", notificationsQuerySchema),
+  notificationsFetchController("me")
+);
 
 router.patch(
   "/",
@@ -20,7 +30,7 @@ router.patch(
 router.get(
   "/:id",
   validateRequest("params", idParamsSchema),
-  notificationFetchController
+  notificationFetchOneController
 );
 
 router.delete(
