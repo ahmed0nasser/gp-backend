@@ -10,13 +10,16 @@ import {
   meDeleteNotificationController,
   meInfoController,
   meNotificationsController,
+  mePairDeviceController,
   meProfileController,
   meReadNotificationsController,
   meRelationsController,
+  meUnpairDeviceController,
   meVitalStatsController,
 } from "../controllers/me";
 import { profileChangeSchema } from "../schemas/validation/profile";
 import { idParamsSchema } from "../schemas/validation/common";
+import { devicePairSchema } from "../schemas/validation/devices";
 
 const router = Router();
 
@@ -54,6 +57,17 @@ router.get(
   "/vital-stats",
   validateRequest("query", vitalStatsQuerySchema),
   meVitalStatsController
+);
+
+router.post(
+  "/devices",
+  validateRequest("body", devicePairSchema),
+  mePairDeviceController
+);
+
+router.delete(
+  "/devices",
+  meUnpairDeviceController
 );
 
 export default router;

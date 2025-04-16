@@ -12,6 +12,7 @@ import {
 } from "../services/notifications";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
+import { pairDevice, unpairDevice } from "../services/devices";
 
 export const meInfoController: RequestHandler = async (
   req: Request,
@@ -178,6 +179,44 @@ export const meVitalStatsController: RequestHandler = async (
         vitalStats,
       },
     });
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const mePairDeviceController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    await pairDevice(Number(req.userClaim.id), req.body.deviceId);
+
+    res.sendStatus(204);
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const meUnpairDeviceController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    await unpairDevice(Number(req.userClaim.id));
+
+    res.sendStatus(204);
     return;
   } catch (error) {
     next(error);
