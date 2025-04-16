@@ -11,6 +11,7 @@ export interface IUser {
   firstName: string;
   lastName: string;
   fullName: string;
+  deviceId: string;
   title: string;
   organization: string;
   phoneNumber: string;
@@ -29,6 +30,7 @@ const userSchema = new Schema<IUser>({
   _id: { type: Number, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
+  deviceId: { type: String, default: "" },
   email: { type: String, required: true },
   passwordHash: { type: String, required: true },
   role: { type: String, required: true },
