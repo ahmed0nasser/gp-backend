@@ -27,3 +27,32 @@ export const relateUsers = async (
 
   return relationId;
 };
+
+// BOTH user1 and user2 MUST BE ALREADY REGISTERED
+export const unrelateUsers = async (user1: NewUser, user2: NewUser) => {
+  // Get access tokens for two users
+  const tokensUser1 = await loginUser(user1);
+  const tokensUser2 = await loginUser(user2);
+  // Get user1's relations
+  const {
+    body: { data: relations },
+  } = await request(app)
+    .get(`/me/relations`)
+    .auth(tokensUser1.accessToken, { type: "bearer" });
+  // Find relationId between user1 and user2
+  const relationFound = relations.find(
+    (relation: { user: { id: number } }) =>
+      relation.user.id === tokensUser2.userId
+  );
+  if (!relationFound)
+    throw new Error(
+      `Users already unrelated:\n ${{ id: tokensUser1.userId, ...user1 }}\n${{
+        id: tokensUser2.userId,
+        ...user2,
+      }}`
+    );
+  // Delete relation
+  await request(app)
+    .delete("/relations/" + relationFound.id)
+    .auth(tokensUser1.accessToken, { type: "bearer" });
+};
