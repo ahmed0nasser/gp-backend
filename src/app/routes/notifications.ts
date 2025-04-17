@@ -15,14 +15,13 @@ import {
 const router = Router();
 
 router.get(
-  "/notifications",
+  "/",
   validateRequest("query", notificationsQuerySchema),
   notificationsFetchController("me")
 );
 
 router.patch(
   "/",
-  validateRequest("params", idParamsSchema),
   validateRequest("body", notificationReadSchema),
   notificationsReadController
 );
