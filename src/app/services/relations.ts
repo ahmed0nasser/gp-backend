@@ -52,7 +52,7 @@ export const areRelated = async (
 
   return user.relations.some(
     (relation) =>
-      relation.type === "relation" && relation.relatedUserId === userId2
+      relation.type === "relation" && relation.relatedUserId == userId2
   );
 };
 
