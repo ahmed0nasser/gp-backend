@@ -30,13 +30,20 @@ router.get(
   validateRequest("params", idParamsSchema),
   validateRequest("query", notificationsQuerySchema),
   async (req: Request, res, next) => {
-    if (!req.userClaim) {
-      throw new UnableAuthenticateUserError();
-    }
-    if (!(await areRelated(Number(req.userClaim.id), Number(req.params.id)))) {
-      throw new APIError(403, {
-        message: "Cannot get notifications of unrelated user",
-      });
+    try {
+      if (!req.userClaim) {
+        throw new UnableAuthenticateUserError();
+      }
+      if (
+        !(await areRelated(Number(req.userClaim.id), Number(req.params.id)))
+      ) {
+        throw new APIError(403, {
+          message: "Cannot get notifications of unrelated user",
+        });
+      }
+      next();
+    } catch (error) {
+      next(error);
     }
   },
   notificationsFetchController("user")
