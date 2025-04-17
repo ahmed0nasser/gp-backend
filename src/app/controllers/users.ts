@@ -1,8 +1,6 @@
 import { RequestHandler, Request } from "express";
 import { Duration, getVitalStatsByUserId } from "../services/vitalStats";
-import {
-  sendNotification,
-} from "../services/notifications";
+import { sendNotification } from "../services/notifications";
 import { areRelated, sendRelationRequest } from "../services/relations";
 import UnableAuthenticateUserError from "../errors/UnableAuthenticateUserError";
 import { getUserProfileById } from "../services/users";

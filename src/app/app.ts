@@ -47,7 +47,7 @@ app.use(errorHandler);
 // START SERVER
 // ====================================
 app.listen(process.env.PORT, () => {
-  console.log("Server is listening...");
+  if (process.env.NODE_ENV !== "testing") console.log("Server is listening...");
 });
 
 export default app;
