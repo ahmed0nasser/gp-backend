@@ -49,8 +49,28 @@ export const getNotificationsByUserId = async (
         maxPageNum,
     });
   }
+  const keys = [
+    "type",
+    "title",
+    "body",
+    "relatedUserId",
+    "senderId",
+    "isRead",
+    "createdAt",
+    "updatedAt",
+  ];
+  const userNotifications = user.notifications
+    .slice((page - 1) * 50, size)
+    .map((notification) => {
+      const userNotification: any = {};
+      userNotification.id = notification._id;
+      for (let key of keys) {
+        userNotification[key] = (notification as any)[key];
+      }
+      return userNotification;
+    });
 
-  return user.notifications.slice((page - 1) * 50, size);
+  return userNotifications;
 };
 
 export const sendNotification = async (
@@ -58,21 +78,25 @@ export const sendNotification = async (
   receiverId: number,
   newNotification: NewNotification
 ): Promise<number> => {
-  if (senderId != receiverId || !(await areRelated(senderId, receiverId))) {
+  if (senderId != receiverId && !(await areRelated(senderId, receiverId))) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
       details: `Sender with id=${senderId} is not related to receiver with id=${receiverId}`,
     });
   }
-
-  if (senderId != newNotification.relatedUserId || !(await areRelated(senderId, newNotification.relatedUserId))) {
+  if (
+    senderId != newNotification.relatedUserId &&
+    !(await areRelated(senderId, newNotification.relatedUserId))
+  ) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
       details: `Sender with id=${senderId} is not related to user with id=${newNotification.relatedUserId}`,
     });
   }
-
-  if (receiverId != newNotification.relatedUserId || !(await areRelated(receiverId, newNotification.relatedUserId))) {
+  if (
+    receiverId != newNotification.relatedUserId &&
+    !(await areRelated(receiverId, newNotification.relatedUserId))
+  ) {
     throw new APIError(403, {
       message: "Cannot send notification to unrelated user",
       details: `Receiver with id=${receiverId} is not related to user with id=${newNotification.relatedUserId}`,
