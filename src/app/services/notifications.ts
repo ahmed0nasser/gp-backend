@@ -150,6 +150,28 @@ export const readNotifications = async (
   await user.save();
 };
 
+export const readOneNotification = async (
+  userId: number,
+  notificationId: number
+) => {
+  const user = await User.findById(userId, "notifications");
+  if (!user) {
+    throw new UserDoesNotExistError(userId);
+  }
+
+  const found = user.notifications.some((notification) => {
+    if (notification._id != notificationId) return false;
+    notification.isRead = true;
+    return true;
+  });
+
+  if (!found) {
+    throw new NotificationDoesNotExistError(userId, notificationId);
+  }
+
+  await user.save();
+};
+
 export const deleteNotification = async (
   userId: number,
   notificationId: number

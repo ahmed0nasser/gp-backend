@@ -5,6 +5,7 @@ import {
   getNotification,
   getNotificationsByUserId,
   readNotifications,
+  readOneNotification,
 } from "../services/notifications";
 
 export const notificationsFetchController =
@@ -50,6 +51,24 @@ export const notificationsReadController: RequestHandler = async (
   }
 };
 
+export const notificationReadOneController: RequestHandler = async (
+  req: Request,
+  res,
+  next
+) => {
+  try {
+    if (!req.userClaim) {
+      throw new UnableAuthenticateUserError();
+    }
+
+    await readOneNotification(Number(req.userClaim.id), Number(req.params.id));
+
+    res.sendStatus(204);
+    return;
+  } catch (error) {
+    next(error);
+  }
+};
 export const notificationFetchOneController: RequestHandler = async (
   req: Request,
   res,

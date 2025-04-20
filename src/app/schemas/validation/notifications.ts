@@ -9,8 +9,12 @@ export const notificationSchema = Joi.object({
   relatedUserId: Joi.number().greater(0).required(),
 }).unknown(false);
 
-export const notificationReadSchema = Joi.object({
+export const multiNotificationsReadSchema = Joi.object({
   ids: Joi.array().items(Joi.number().greater(0)).min(1).max(50).required(),
+  isRead: Joi.boolean().valid(true).required(),
+}).unknown(false);
+
+export const oneNotificaitonReadSchema = Joi.object({
   isRead: Joi.boolean().valid(true).required(),
 }).unknown(false);
 
