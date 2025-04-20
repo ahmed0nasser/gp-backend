@@ -12,6 +12,8 @@ import {
 } from "../controllers/me";
 import { profileChangeSchema } from "../schemas/validation/profile";
 import { devicePairSchema } from "../schemas/validation/devices";
+import { notificationsQuerySchema } from "../schemas/validation/notifications";
+import { notificationsFetchController } from "../controllers/notifications";
 
 const router = Router();
 
@@ -20,6 +22,12 @@ router.get("/", meInfoController);
 router.get("/relations", meRelationsController);
 
 router.get("/profile", meProfileController);
+
+router.get(
+  "/notifications",
+  validateRequest("query", notificationsQuerySchema),
+  notificationsFetchController("me")
+);
 
 router.patch(
   "/profile",
