@@ -34,7 +34,7 @@ export const getNotificationsByUserId = async (
   userId: number,
   page: number,
   size: number
-): Promise<INotification[]> => {
+): Promise<{ total: number; notifications: INotification[] }> => {
   const user = await User.findById(userId, "notifications");
   if (!user) {
     throw new UserDoesNotExistError(userId);
@@ -71,7 +71,7 @@ export const getNotificationsByUserId = async (
       return userNotification;
     });
 
-  return userNotifications;
+  return { total: user.notifications.length, notifications: userNotifications };
 };
 
 export const sendNotification = async (

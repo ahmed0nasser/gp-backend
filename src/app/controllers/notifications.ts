@@ -15,7 +15,7 @@ export const notificationsFetchController =
         throw new UnableAuthenticateUserError();
       }
 
-      const notifications = await getNotificationsByUserId(
+      const { total, notifications } = await getNotificationsByUserId(
         Number(user === "me" ? req.userClaim.id : req.params.id),
         Number(req.query.page),
         Number(req.query.size)
@@ -23,7 +23,7 @@ export const notificationsFetchController =
 
       res.status(200).json({
         status: "success",
-        data: { size: notifications.length, notifications },
+        data: { total, size: notifications.length, notifications },
       });
       return;
     } catch (error) {
