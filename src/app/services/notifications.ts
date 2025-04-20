@@ -59,8 +59,9 @@ export const getNotificationsByUserId = async (
     "createdAt",
     "updatedAt",
   ];
+  const pageIndex = (page - 1) * 50;
   const userNotifications = user.notifications
-    .slice((page - 1) * 50, size)
+    .slice(pageIndex, pageIndex + size)
     .map((notification) => {
       const userNotification: any = {};
       userNotification.id = notification._id;
