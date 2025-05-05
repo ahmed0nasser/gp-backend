@@ -17,7 +17,7 @@ import { notificationsFetchController } from "../controllers/notifications";
 
 const router = Router();
 
-router.get("/", meInfoController);
+router.get("/info", meInfoController);
 
 router.get("/relations", meRelationsController);
 
@@ -47,9 +47,6 @@ router.post(
   mePairDeviceController
 );
 
-router.delete(
-  "/devices",
-  meUnpairDeviceController
-);
+router.delete("/devices", meUnpairDeviceController);
 
 export default router;
