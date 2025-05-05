@@ -15,6 +15,8 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
       .status(500)
       .json({ status: "error", error: { name: err.name, ...err } });
   }
+  console.log(err);
+  console.log("===================");
 };
 
 export default errorHandler;

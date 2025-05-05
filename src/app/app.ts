@@ -26,6 +26,12 @@ app.use(express.json());
 // ====================================
 // ROUTERS
 // ====================================
+app.use((req, res, next) => {
+  console.log(req.ip, req.method, req.originalUrl);
+  console.log(req.body);
+  console.log("===================");
+  next();
+});
 app.use("/auth", authRouter);
 app.use("/me", authUserHandler, meRouter);
 app.use("/users", authUserHandler, usersRouter);
