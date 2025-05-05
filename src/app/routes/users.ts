@@ -7,6 +7,7 @@ import {
 } from "../schemas/validation/notifications";
 import { idParamsSchema } from "../schemas/validation/common";
 import {
+  usersGetUserInfoController,
   usersGetUserProfileController,
   usersGetVitalStatsController,
   usersPostNotificationController,
@@ -18,6 +19,12 @@ import APIError from "../errors/APIError";
 import { notificationsFetchController } from "../controllers/notifications";
 
 const router = Router();
+
+router.get(
+  "/:id/info",
+  validateRequest("params", idParamsSchema),
+  usersGetUserInfoController
+);
 
 router.post(
   "/:id/relations",
