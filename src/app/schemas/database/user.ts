@@ -3,7 +3,7 @@ import relationSchema, { IRelation } from "./relation";
 import notificationSchema, { INotification } from "./notification";
 import vitalStatSchema, { IVitalStat } from "./vitalStat";
 
-export type UserRole = "ward" | "caregiver";
+export type UserRole = "patient" | "caregiver";
 
 export interface IUser {
   id: number;

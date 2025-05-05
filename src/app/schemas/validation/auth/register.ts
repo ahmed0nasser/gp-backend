@@ -8,7 +8,7 @@ const schema = Joi.object({
   repeatPassword: Joi.string().valid(Joi.ref("password")).required().messages({
     "any.only": "repeatPassword must match password",
   }),
-  role: Joi.string().valid("caregiver", "ward").required(),
+  role: Joi.string().valid("caregiver", "patient").required(),
 }).unknown(false);
 
 export default schema;

@@ -13,8 +13,10 @@ export const getVitalStatsByUserId = async (
   if (!user) {
     throw new UserDoesNotExistError(userId);
   }
-  if (user.role !== "ward") {
-    throw new APIError(403, { message: "No vital stats for non-ward users" });
+  if (user.role !== "patient") {
+    throw new APIError(403, {
+      message: "No vital stats for non-patient users",
+    });
   }
 
   const durationTimestamp = durationToDate(duration);

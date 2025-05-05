@@ -8,7 +8,7 @@ export const pairDevice = async (userId: number, deviceId: string) => {
     throw new UserDoesNotExistError(userId);
   }
 
-  if (user.role !== "ward") {
+  if (user.role !== "patient") {
     throw new APIError(403, {
       message: "Cannot assign deviceId",
       details: `user with id=${userId} has inappropriate role`,
@@ -26,7 +26,7 @@ export const unpairDevice = async (userId: number) => {
     throw new UserDoesNotExistError(userId);
   }
 
-  if (user.role !== "ward") {
+  if (user.role !== "patient") {
     throw new APIError(403, {
       message: "Cannot deassign deviceId",
       details: `user with id=${userId} has inappropriate role`,

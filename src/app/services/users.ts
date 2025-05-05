@@ -97,11 +97,11 @@ export const changeUserProfile = async (
       details:
         'user with role="caregiver" cannot have impairment field in profile',
     });
-  } else if (user.role === "ward" && (profile.title || profile.organization)) {
+  } else if (user.role === "patient" && (profile.title || profile.organization)) {
     throw new APIError(400, {
       message: "Cannot write profile changes",
       details:
-        'user with role="ward" cannot have title field or organization in profile',
+        'user with role="patient" cannot have title field or organization in profile',
     });
   }
 
