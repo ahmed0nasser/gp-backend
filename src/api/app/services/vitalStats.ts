@@ -2,7 +2,7 @@ import APIError from "../errors/APIError";
 import UserDoesNotExistError from "../errors/UserDoesNotExistError";
 import User from "../models/user";
 
-export type Duration = "30mins" | "hour" | "day" | "week";
+export type Duration = "hour" | "day" | "week";
 
 export const getVitalStatsByUserId = async (
   userId: number,
@@ -35,9 +35,6 @@ const durationToDate = (duration: Duration) => {
   let date;
 
   switch (duration) {
-    case "30mins":
-      date = 1800000;
-      break;
     case "hour":
       date = 3600000;
       break;
