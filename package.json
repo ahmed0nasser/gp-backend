@@ -1,16 +1,22 @@
 {
 	"type": "module",
 	"scripts": {
-		"dev": "tsx --watch --env-file=.env ./src/app/app.ts",
-		"test": "tsx --env-file=.env --test --test-force-exit"
+		"dev": "tsx --watch --env-file=.env ./src/api/app/app.ts",
+		"test": "tsx --env-file=.env --test --test-force-exit",
+		"api": "tsx --env-file=.env ./src/api/app/app.ts",
+		"ws": "tsx --env-file=.env ./src/ws/server.ts"
 	},
 	"dependencies": {
+		"@types/uuid": "^10.0.0",
+		"@types/ws": "^8.18.1",
 		"bcrypt": "^5.1.1",
 		"express": "^4.21.2",
 		"joi": "^17.13.3",
 		"jsonwebtoken": "^9.0.2",
 		"mongoose": "^8.12.1",
-		"supertest": "^7.1.0"
+		"supertest": "^7.1.0",
+		"uuid": "^11.1.0",
+		"ws": "^8.18.2"
 	},
 	"devDependencies": {
 		"@types/bcrypt": "^5.0.2",
