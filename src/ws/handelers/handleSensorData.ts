@@ -6,7 +6,7 @@ export default async function handleSensorData(
   data: any,
   clientId: string
 ) {
-  // await handleDataStorage(data, clientId);
+  await handleDataStorage(data, clientId);
   console.log(`Received sensor data from ${clientId}: `, data);
   // Send acknowledgment
   ws.send(
