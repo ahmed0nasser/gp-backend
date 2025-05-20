@@ -4,10 +4,16 @@ export interface AuthMessage {
   accessToken: string;
 }
 
-export interface SensorData {
+export interface VitalData {
   temperature: number;
   heartRate: number;
   bloodOxygen: number;
+}
+
+export interface SystemNotification {
+  type: "emergency" | "warning";
+  title: string;
+  body: string;
 }
 
 export interface Client {

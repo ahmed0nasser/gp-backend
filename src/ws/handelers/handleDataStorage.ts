@@ -1,10 +1,10 @@
 import UserDoesNotExistError from "../../api/app/errors/UserDoesNotExistError";
 import User from "../../api/app/models/user";
 import clients from "../clients";
-import { SensorData } from "../interfaces";
+import { VitalData } from "../interfaces";
 
 export default async function handleDataStorage(
-  data: SensorData,
+  data: VitalData,
   clientId: string
 ) {
   const client = clients.get(clientId)!;
